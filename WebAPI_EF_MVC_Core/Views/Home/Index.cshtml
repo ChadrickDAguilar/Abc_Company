@@ -1,0 +1,129 @@
+﻿@using Abc_Company.Models
+@model IEnumerable<CarrierModel>
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+    ViewBag.amount = Convert.ToInt32(ViewBag.amount);
+    double s = ViewBag.amount;
+
+    double x1, x2, y1, y2;
+    string[] myList = new string[4];
+    int i = 0;
+    int u = 0;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <style type="text/css">
+        body
+        {
+            font-family: Arial;
+            font-size: 10pt;
+        }
+
+        table
+        {
+            border: 1px solid #ccc;
+            border-collapse: collapse;
+        }
+
+        table th
+        {
+            background-color: #F7F7F7;
+            color: #333;
+            font-weight: bold;
+        }
+
+        table th, table td
+        {
+            padding: 5px;
+            border: 1px solid #ccc;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    
+    <form method="post" asp-controller="Home" asp-action="Index">
+        <span>Address:</span>
+        <input type="text" name="name" />
+        <span>Radius:</span>
+        <input id="rangeInput" type="range" min="0" max="2000" oninput="amount.value=rangeInput.value" />
+        <input id="amount" type="number" value="100" min="0" max="2000" oninput="rangeInput.value=amount.value" name="amount" />
+        <input type="submit" name="search" />
+        <input type="submit" name="search" value="Radius" formmethod="get"/>
+    </form>
+    <hr />
+
+    <table border = "0" cellpadding="0" cellspacing="0">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Coordinates</th>
+        </tr>
+        
+        @foreach (CarrierModel Carrier in Model)
+        {
+            //Gets carrier that was searched for
+            myList[i++] = Carrier.Coordinates.ToString();
+            <tr>
+                <td>@Carrier.id</td>
+                <td>@Carrier.Name</td>
+                <td>@Carrier.Address</td>
+                <td>@Carrier.Coordinates</td>
+            </tr>
+        }
+        </table>
+        <table border="0" cellpadding="0" cellspacing="0" id="Near">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Coordinates</th>
+            </tr>
+        @foreach (CarrierModel CarriersNear in Model)
+        {
+            //gets carriers that are near by according to radius
+
+                string coord = myList[0]; //gets the first search result
+                //collects coordinates and divides it into x and y
+                string lat = coord.Substring(coord.LastIndexOf(',') + 2);
+                x1 = double.Parse(lat);
+                string lon = coord.Split(',')[0];
+                y1 = double.Parse(lon);
+
+                string coord2 = myList[u++];
+                string lat2 = coord2.Substring(coord2.LastIndexOf(',') + 2);
+                x2 = double.Parse(lat2);
+                string lon2 = coord2.Split(',')[0];
+                y2 = double.Parse(lon2);
+
+                //calculates the distance in kilometers
+                var distance = Math.Sqrt((Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2)));
+                double km = distance * 100;
+
+                Console.WriteLine(distance);
+//displays the carriers that are within the rande
+            if (km <= s)
+                {
+                <tr>
+                    <td>@CarriersNear.id</td>
+                    <td>@CarriersNear.Name</td>
+                    <td>@CarriersNear.Address</td>
+                    <td>@CarriersNear.Coordinates</td>
+
+                </tr>
+            }
+
+
+        }
+
+    </table>
+</body>
+</html>
+
